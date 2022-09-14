@@ -11,6 +11,7 @@ client.connect(err => {
 })
 
 client.query('DROP TABLE questions');
+client.query('DROP TABLE answers');
 
 client.query(`CREATE TABLE questions (
       question_id     int UNIQUE,
@@ -23,24 +24,23 @@ client.query(`CREATE TABLE questions (
       helpful         int
       );`).then(res => {
         console.log('Table created!')
-        client.end();
       }).catch(err => {
         console.log('Table Creation failed: ', err)
-        client.end();
+        //client.end();
       })
 
-// client.query(`CREATE TABLE answers (
-//       question_id     int,
-//       product_id      int,
-//       body            text,
-//       date_written    text,
-//       asker_name      text,
-//       asker_email     text,
-//       reported        int,
-//       helpful         int
-//       );`).then(res => {
-//         console.log('Table created!')
-//       }).catch(err => {
-//         console.log('Table Creation failed: ', err)
-//       })
-//id,question_id,body,date_written,answerer_name,answerer_email,reported,helpful
+client.query(`CREATE TABLE answers (
+      answer_id     int,
+      question_id      int,
+      body            text,
+      date_written    text,
+      answerer_name      text,
+      answerer_email     text,
+      reported        int,
+      helpful         int
+      );`).then(res => {
+        console.log('Table created!')
+      }).catch(err => {
+        console.log('Table Creation failed: ', err)
+        //client.end();
+      })
