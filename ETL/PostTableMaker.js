@@ -43,3 +43,4 @@ client.query(`CREATE TABLE questions (
 //       }).catch(err => {
 //         console.log('Table Creation failed: ', err)
 //       })
+//id,question_id,body,date_written,answerer_name,answerer_email,reported,helpful
