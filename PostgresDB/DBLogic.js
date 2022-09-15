@@ -77,10 +77,14 @@ const addAnswer = async ( { question_id }, {body, name, email, photos}) => {
     })
   }
 
-  var insertId = await pool.query(`INSERT INTO answers (question_id, body, date, answerer_name, answerer_email, reported, helpfulness) VALUES ($1, $2, $3, $4, $5, 0, 0) RETURNING answer_id;`, [question_id, body, new Date(), name, email])
+  var lastId = await pool.query(`SELECT MAX(answer_id) FROM answers`)
+  lastId = lastId.rows[0].max + 1;
+  console.log(lastId)
 
-  Promise.all(photos.forEach(async (url) => {
-    await pool.query(`INSERT INTO pictures (answer_id, url) VALUES ($1, $2);`, [insertId, url]).then(() => {
+  await pool.query(`INSERT INTO answers (answer_id, question_id, body, date, answerer_name, answerer_email, reported, helpfulness) VALUES ($1, $2, $3, $4, $5, $6, 0, 0);`, [lastId, question_id, body, new Date(), name, email])
+
+  await Promise.all(photos.forEach(async (url) => {
+    await pool.query(`INSERT INTO pictures (answer_id, url) VALUES ($1, $2);`, [lastId, url]).then(() => {
       console.log('pictures added')
     })
   }))
