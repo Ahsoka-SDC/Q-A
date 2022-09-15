@@ -1,6 +1,6 @@
 const express = require('express');
 const app = express();
-const { getQuestions, getAnswers } = require('../PostgresDB/DBLogic.js')
+const { getQuestions, getAnswers, addAnswer } = require('../PostgresDB/DBLogic.js')
 
 app.use(express.json());
 
@@ -27,6 +27,16 @@ app.get('/qa/questions/:question_id/answers', (req, res) => {
     res.sendStatus(404);
   })
 })
+
+app.post('/qa/questions/:question_id/answers', (req, res) => {
+  addAnswer(req.params, req.body).then(() => {
+    res.sendStatus(201);
+  }).catch(err => {
+    console.log('POST error: ', err);
+    res.sendStatus(404);
+  })
+})
+
 
 const port = 3000;
 

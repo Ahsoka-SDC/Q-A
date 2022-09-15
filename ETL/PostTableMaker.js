@@ -14,7 +14,7 @@ const makeTables = async () => {
   await client.query('DROP TABLE IF EXISTS questions, answers, pictures CASCADE');
 
   await client.query(`CREATE TABLE questions (
-        question_id     INT PRIMARY KEY UNIQUE,
+        question_id     SERIAL PRIMARY KEY UNIQUE,
         product_id      INT,
         question_body   text,
         question_date   text,
@@ -26,11 +26,10 @@ const makeTables = async () => {
           console.log('Questions created!')
         }).catch(err => {
           console.log('Table Creation failed: ', err)
-          //client.end();
         })
 
   await client.query(`CREATE TABLE answers (
-        answer_id     INT PRIMARY KEY,
+        answer_id     SERIAL PRIMARY KEY,
         question_id      INT REFERENCES questions(question_id),
         body            text,
         date    text,
@@ -42,11 +41,10 @@ const makeTables = async () => {
           console.log('Answers created!')
         }).catch(err => {
           console.log('Table Creation failed: ', err)
-          //client.end();
         })
 
   await client.query(`CREATE TABLE pictures (
-        id    int UNIQUE,
+        id    SERIAL UNIQUE,
         answer_id     INT REFERENCES answers(answer_id),
         url           text
         )`).then(res => {

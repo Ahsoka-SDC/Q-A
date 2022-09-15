@@ -37,7 +37,7 @@ const getQuestions = async (prodId, count = 5) => {
   return {product_id: prodId, results: resultPromise};
 }
 
-const getAnswers = async (questionId, count = 5, page = 0) => {
+const getAnswers = async (question_id, count = 5, page = 0) => {
 
   if (!poolOpen) {
     await pool.connect(err => {
@@ -50,7 +50,7 @@ const getAnswers = async (questionId, count = 5, page = 0) => {
     })
   }
 
-  var results = await pool.query(`SELECT answer_id, body, date, answerer_name, helpfulness FROM answers WHERE question_id = $1 AND reported = 0 LIMIT $2`, [questionId, count]).then(async data => {
+  var results = await pool.query(`SELECT answer_id, body, date, answerer_name, helpfulness FROM answers WHERE question_id = $1 AND reported = 0 LIMIT $2`, [question_id, count]).then(async data => {
     console.log(data.rows)
     for (var i = 0; i < data.rows.length; i++) {
       await pool.query(`SELECT id, url FROM pictures WHERE answer_id = $1`, [data.rows[i].answer_id]).then(photosData => {
@@ -61,7 +61,29 @@ const getAnswers = async (questionId, count = 5, page = 0) => {
     return data.rows
   })
   console.log(results)
-  return {question: questionId, page: page, count: count, results: results};
+  return {question: question_id, page: page, count: count, results: results};
 }
 
-module.exports = { getQuestions, getAnswers }
+const addAnswer = async ( { question_id }, {body, name, email, photos}) => {
+
+  if (!poolOpen) {
+    await pool.connect(err => {
+      if (err) {
+        console.error('connection error', err.stack)
+      } else {
+        console.log('connected')
+        poolOpen = true;
+      }
+    })
+  }
+
+  var insertId = await pool.query(`INSERT INTO answers (question_id, body, date, answerer_name, answerer_email, reported, helpfulness) VALUES ($1, $2, $3, $4, $5, 0, 0) RETURNING answer_id;`, [question_id, body, new Date(), name, email])
+
+  Promise.all(photos.forEach(async (url) => {
+    await pool.query(`INSERT INTO pictures (answer_id, url) VALUES ($1, $2);`, [insertId, url]).then(() => {
+      console.log('pictures added')
+    })
+  }))
+}
+
+module.exports = { getQuestions, getAnswers, addAnswer }
