@@ -22,6 +22,9 @@ app.get('/qa/questions/:question_id/answers', (req, res) => {
   getAnswers(req.params.question_id, req.query.count).then(data => {
     res.status(200);
     res.send(data);
+  }).catch(err => {
+    console.log('GET error: ', err);
+    res.sendStatus(404);
   })
 })
 
