@@ -10,37 +10,52 @@ client.connect(err => {
   }
 })
 
-client.query('DROP TABLE questions');
-client.query('DROP TABLE answers');
+const makeTables = async () => {
+  await client.query('DROP TABLE IF EXISTS questions, answers, pictures CASCADE');
 
-client.query(`CREATE TABLE questions (
-      question_id     int UNIQUE,
-      product_id      int,
-      body            text,
-      date_written    text,
-      asker_name      text,
-      asker_email     text,
-      reported        int,
-      helpful         int
-      );`).then(res => {
-        console.log('Table created!')
-      }).catch(err => {
-        console.log('Table Creation failed: ', err)
-        //client.end();
-      })
+  await client.query(`CREATE TABLE questions (
+        question_id     INT PRIMARY KEY UNIQUE,
+        product_id      INT,
+        question_body   text,
+        question_date   text,
+        asker_name      text,
+        asker_email     text,
+        reported        INT,
+        question_helpfulness         INT
+        );`).then(res => {
+          console.log('Questions created!')
+        }).catch(err => {
+          console.log('Table Creation failed: ', err)
+          //client.end();
+        })
 
-client.query(`CREATE TABLE answers (
-      answer_id     int,
-      question_id      int,
-      body            text,
-      date_written    text,
-      answerer_name      text,
-      answerer_email     text,
-      reported        int,
-      helpful         int
-      );`).then(res => {
-        console.log('Table created!')
-      }).catch(err => {
-        console.log('Table Creation failed: ', err)
-        //client.end();
-      })
+  await client.query(`CREATE TABLE answers (
+        answer_id     INT PRIMARY KEY,
+        question_id      INT REFERENCES questions(question_id),
+        body            text,
+        date    text,
+        answerer_name      text,
+        answerer_email     text,
+        reported        int,
+        helpfulness         int
+        );`).then(res => {
+          console.log('Answers created!')
+        }).catch(err => {
+          console.log('Table Creation failed: ', err)
+          //client.end();
+        })
+
+  await client.query(`CREATE TABLE pictures (
+        id    int UNIQUE,
+        answer_id     INT REFERENCES answers(answer_id),
+        url           text
+        )`).then(res => {
+          console.log('Pictures created!')
+        }).catch(err => {
+          console.log('Table Creation failed: ', err)
+        })
+
+  await client.end();
+}
+
+makeTables();

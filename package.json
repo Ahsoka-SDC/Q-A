@@ -3,7 +3,9 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./server/index.js"
+    "start": "nodemon ./server/index.js",
+    "tables": "node ./ETL/PostTableMaker.js",
+    "ETL": "node ./ETL/Postgres_ETL.js"
   },
   "dependencies": {
     "cookie-parser": "~1.4.4",
@@ -12,6 +14,7 @@
     "http-errors": "~1.6.3",
     "jade": "~1.11.0",
     "morgan": "~1.9.1",
+    "nodemon": "^2.0.19",
     "pg": "^8.8.0"
   }
 }
