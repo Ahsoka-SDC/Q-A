@@ -32,7 +32,6 @@ const getQuestions = async (prodId) => {
     return item;
   }))
 
-
   return {product_id: prodId, results: resultPromise};
 }
 

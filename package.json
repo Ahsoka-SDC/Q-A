@@ -5,7 +5,8 @@
   "scripts": {
     "start": "nodemon ./server/index.js",
     "tables": "node ./ETL/PostTableMaker.js",
-    "ETL": "node ./ETL/Postgres_ETL.js"
+    "ETL": "node ./ETL/Postgres_ETL.js",
+    "Indexes": "node ./ETL/PostIndexer.js"
   },
   "dependencies": {
     "cookie-parser": "~1.4.4",
