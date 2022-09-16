@@ -23,6 +23,7 @@ const getQuestions = async (prodId, count = 5) => {
     await pool.query(`SELECT answer_id, body, date, answerer_name, helpfulness FROM answers WHERE question_id = $1 AND reported = 0`, [item.question_id]).then(async data => {
       item.answers = {};
       for (var i = 0; i < data.rows.length; i++) {
+        data.rows[i].question_date = new Date(data.rows[i].question_date);
         item.answers[data.rows[i].answer_id] = data.rows[i];
         await pool.query(`SELECT id, url FROM pictures WHERE answer_id = $1`, [data.rows[i].answer_id]).then(photosData => {
           data.rows[i].photos = photosData.rows;
@@ -77,18 +78,11 @@ const addAnswer = async ( { question_id }, {body, name, email, photos}) => {
     })
   }
 
-  var lastId = await pool.query(`SELECT MAX(answer_id) FROM answers`)
-  lastId = lastId.rows[0].max + 1;
-  console.log(lastId)
-
-  await pool.query(`INSERT INTO answers (answer_id, question_id, body, date, answerer_name, answerer_email, reported, helpfulness) VALUES ($1, $2, $3, $4, $5, $6, 0, 0);`, [lastId, question_id, body, new Date(), name, email])
+  var lastId = await pool.query(`INSERT INTO answers (question_id, body, date, answerer_name, answerer_email, reported, helpfulness) VALUES ( $1, $2, $3, $4, $5, 0, 0) RETURNING answer_id;`, [question_id, body, new Date(), name, email])
+  lastId = lastId.rows[0].answer_id;
 
   await photos.forEach(async (url) => {
-    var newId = await pool.query(`SELECT MAX(id) FROM pictures`)
-    newId = newId.rows[0].max + 1;
-    await pool.query(`INSERT INTO pictures (id, answer_id, url) VALUES ($1, $2, $3);`, [newId, lastId, url]).then(() => {
-      console.log('pictures added')
-    })
+    await pool.query(`INSERT INTO pictures (answer_id, url) VALUES ($1, $2);`, [lastId, url])
   })
 }
 
