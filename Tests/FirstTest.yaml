@@ -1,0 +1,33 @@
+config:
+  target: "http://localhost:3000/qa"
+  phases:
+    - duration: 30
+      arrivalRate: 10
+      name: Warm up
+    - duration: 45
+      arrivalRate: 10
+      rampTo: 1000
+      name: Ramp up load
+    - duration: 60
+      arrivalRate: 1000
+      name: Sustained load
+  variables:
+    product_id:
+        - "12"
+        - "20"
+        - "2"
+        - "8"
+        - "4"
+    count:
+        - "1"
+        - "2"
+        - "3"
+        - "4"
+        - "5"
+
+
+scenarios:
+  - name: "Get questions"
+    flow:
+      - get:
+          url: "/questions?prduct_id=12"
