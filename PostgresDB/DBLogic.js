@@ -83,11 +83,13 @@ const addAnswer = async ( { question_id }, {body, name, email, photos}) => {
 
   await pool.query(`INSERT INTO answers (answer_id, question_id, body, date, answerer_name, answerer_email, reported, helpfulness) VALUES ($1, $2, $3, $4, $5, $6, 0, 0);`, [lastId, question_id, body, new Date(), name, email])
 
-  await Promise.all(photos.forEach(async (url) => {
-    await pool.query(`INSERT INTO pictures (answer_id, url) VALUES ($1, $2);`, [lastId, url]).then(() => {
+  await photos.forEach(async (url) => {
+    var newId = await pool.query(`SELECT MAX(id) FROM pictures`)
+    newId = newId.rows[0].max + 1;
+    await pool.query(`INSERT INTO pictures (id, answer_id, url) VALUES ($1, $2, $3);`, [newId, lastId, url]).then(() => {
       console.log('pictures added')
     })
-  }))
+  })
 }
 
 module.exports = { getQuestions, getAnswers, addAnswer }
