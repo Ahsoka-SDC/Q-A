@@ -1,8 +1,10 @@
 const express = require('express');
+const morgan = require('morgan');
 const app = express();
 const { getQuestions, addQuestion, helpfulQuestion, reportQuestion, getAnswers, addAnswer, helpfulAnswer, reportAnswer } = require('../PostgresDB/DBLogic.js')
 
 app.use(express.json());
+app.use(morgan('dev'))
 
 
 //get questions
@@ -92,6 +94,7 @@ const port = 3000;
 const server = app.listen(port, () => {
   console.log(`Listening on port ${port}`)
 })
-server.keepAlive = true;
+
+// server.keepAlive = true;
 // server.keepAliveTimeout = 30000;
-// server.headersTimeout = 31000;
+// server.headersTimeout = 0;
