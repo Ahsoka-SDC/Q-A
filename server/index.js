@@ -4,6 +4,7 @@ const { getQuestions, addQuestion, helpfulQuestion, reportQuestion, getAnswers, 
 
 app.use(express.json());
 
+
 //get questions
 app.get('/qa/questions', (req, res) => {
   getQuestions(req.query.product_id, req.query.count).then(data => {
@@ -88,6 +89,9 @@ app.put('/qa/answers/:answer_id/report', (req, res) => {
 
 const port = 3000;
 
-app.listen(port, () => {
+const server = app.listen(port, () => {
   console.log(`Listening on port ${port}`)
 })
+server.keepAlive = true;
+// server.keepAliveTimeout = 30000;
+// server.headersTimeout = 31000;

@@ -1,13 +1,13 @@
 config:
   target: "http://localhost:3000/qa"
   phases:
-    - duration: 30
-      arrivalRate: 10
-      name: Warm up
-    - duration: 45
-      arrivalRate: 10
-      rampTo: 1000
-      name: Ramp up load
+    # - duration: 30
+    #   arrivalRate: 10
+    #   name: Warm up
+    # - duration: 45
+    #   arrivalRate: 10
+    #   rampTo: 1000
+    #   name: Ramp up load
     - duration: 60
       arrivalRate: 1000
       name: Sustained load
@@ -30,4 +30,4 @@ scenarios:
   - name: "Get questions"
     flow:
       - get:
-          url: "/questions?prduct_id=12"
+          url: "/questions?prduct_id={{ product_id }}&count={{ count }}"
