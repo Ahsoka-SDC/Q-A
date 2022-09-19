@@ -1,10 +1,8 @@
 const express = require('express');
-const morgan = require('morgan');
 const app = express();
 const { getQuestions, addQuestion, helpfulQuestion, reportQuestion, getAnswers, addAnswer, helpfulAnswer, reportAnswer } = require('../PostgresDB/DBLogic.js')
 
 app.use(express.json());
-// app.use(morgan('dev'))
 
 
 //get questions
