@@ -88,6 +88,9 @@ app.put('/qa/answers/:answer_id/report', (req, res) => {
 
 const port = 3000;
 
-app.listen(port, () => {
+const server = app.listen(port, () => {
   console.log(`Listening on port ${port}`)
 })
+
+server.keepAliveTimeout = 10;
+server.headersTimeout = 11;
