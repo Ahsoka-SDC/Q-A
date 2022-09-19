@@ -1,15 +1,15 @@
 config:
   target: "http://localhost:3000/qa"
   phases:
-    - duration: 10
-      arrivalRate: 10
+    - duration: 30
+      arrivalRate: 425
       name: Warm up
     - duration: 45
       arrivalRate: 500
-      rampTo: 1000
+      rampTo: 850
       name: Ramp up load
     - duration: 60
-      arrivalRate: 1000
+      arrivalRate: 1500
       name: Sustained load
   variables:
     product_id:
@@ -17,7 +17,9 @@ config:
         # - "20"
         # - "2"
         # - "8"
-        - "4"
+        - "966092"
+        - "994663"
+        - "980353"
     count:
         # - "1"
         # - "2"
