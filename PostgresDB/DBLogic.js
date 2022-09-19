@@ -13,27 +13,34 @@ pool.connect(err => {
 // <--------------- QUESTION LOGIC ----------------->
 const getQuestions = async (prodId, count = 5) => {
 
-  var result = await pool.query('SELECT question_id, question_body, question_date, asker_name, question_helpfulness FROM questions WHERE product_id = $1 AND reported = 0 LIMIT $2', [prodId, count])
+  var prodQuestions = await pool.query('SELECT q.question_id, q.question_body, q.question_date, q.asker_name, q.question_helpfulness, a.answer_id, a.body, a.date, a.answerer_name, a.helpfulness, p.id, p.url FROM questions q JOIN answers a ON q.question_id = a.question_id JOIN pictures p ON a.answer_id = p.answer_id WHERE q.product_id = $1 AND a.reported = 0 AND q.reported = 0 LIMIT $2;', [prodId, count])
 
-  var resultPromise = await Promise.all(result.rows.map(async (item) => {
-    await pool.query(`SELECT answer_id, body, date, answerer_name, helpfulness FROM answers WHERE question_id = $1 AND reported = 0`, [item.question_id]).then(async data => {
-      item.answers = {};
-      for (var i = 0; i < data.rows.length; i++) {
-        data.rows[i].date = new Date(parseInt(data.rows[i].date)).toLocaleDateString('sv').replace(/\//g, '-');
-        item.answers[data.rows[i].answer_id] = data.rows[i];
-        await pool.query(`SELECT id, url FROM pictures WHERE answer_id = $1`, [data.rows[i].answer_id]).then(photosData => {
-          data.rows[i].photos = photosData.rows;
-        })
-        data.rows[i].id = data.rows[i].answer_id
-        data.rows[i].answer_id = undefined;
-      }
-    })
+  var results = [];
+  var obj = { reported: false, answers: {} };
+  prodQuestions.rows.forEach(row => {
+    if (obj.question_id && row.question_id !== obj.question_id) {
+      results.push(obj);
+      obj = { reported: false, answers: {} };
+    }
+    obj.question_id = row.question_id;
+    obj.question_body = row.question_body;
+    obj.question_date = new Date(parseInt(row.question_date)).toLocaleDateString('sv').replace(/\//g, '-');
+    obj.asker_name = row.asker_name;
+    obj.question_helpfulness = row.question_helpfulness;
+    obj.answers[row.answer_id] = {
+      id: row.answer_id,
+      body: row.body,
+      date: new Date(parseInt(row.date)).toLocaleDateString('sv').replace(/\//g, '-'),
+      answerer_name: row.answerer_name,
+      helpfulness: row.helpfulness,
+      photos: []
+    }
+    if (row.url) {
+      obj.answers[row.answer_id].photos.push({id: row.id, url: row.url});
+    }
+  })
 
-    item.question_date = new Date(parseInt(item.question_date)).toLocaleDateString('sv').replace(/\//g, '-');
-    return item;
-  }))
-
-  return {product_id: prodId, results: resultPromise};
+  return {product_id: prodId, results: results};
 }
 
 const addQuestion = async ({ body, name, email, product_id }) => {
@@ -51,17 +58,24 @@ const reportQuestion = async (question_id) => {
 
 const getAnswers = async (question_id, count = 5, page = 0) => {
 
-  var results = await pool.query(`SELECT answer_id, body, date, answerer_name, helpfulness FROM answers WHERE question_id = $1 AND reported = 0 LIMIT $2`, [question_id, count]).then(async data => {
-    for (var i = 0; i < data.rows.length; i++) {
-      await pool.query(`SELECT id, url FROM pictures WHERE answer_id = $1`, [data.rows[i].answer_id]).then(photosData => {
-        data.rows[i].photos = photosData.rows;
-      })
+  var questionAnswers = await pool.query(`SELECT a.answer_id, a.body, a.date, a.answerer_name, a.helpfulness, p.id, p.url FROM answers a JOIN pictures p ON a.answer_id = p.answer_id WHERE question_id = $1 AND reported = 0 LIMIT $2`, [question_id, count])
+  var results = [];
+  var obj = { photos: [] };
+  questionAnswers.rows.forEach(row => {
+    if (obj.answer_id && obj.answer_id !== row.answer_id) {
+      results.push(obj);
+      obj = { photos: [] }
     }
-    return data.rows
+    obj.answer_id = row.answer_id;
+    obj.body = row.body;
+    obj.date = new Date(parseInt(row.date)).toLocaleDateString('sv').replace(/\//g, '-');
+    obj.answerer_name = row.answerer_name;
+    obj.helpfulness = row.helpfulness;
+    if (row.url) {
+      obj.photos.push({id: row.id, url: row.url});
+    }
   })
-  for (var i = 0; i < results.length; i++) {
-    results[i].date = new Date(parseInt(results[i].date)).toLocaleDateString('sv').replace(/\//g, '-');
-  }
+
   return {question: question_id, page: page, count: count, results: results};
 }
 
