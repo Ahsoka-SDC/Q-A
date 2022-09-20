@@ -1,5 +1,12 @@
+require('dotenv').config()
 const { Pool, Client } = require('pg')
-const pool = new Pool();
+const pool = new Pool({
+  host: process.env.HOST,
+  port: process.env.PORT,
+  user: 'ubuntu',
+  password: process.env.PW,
+  database: process.env.DATABASE
+});
 
 pool.connect(err => {
   if (err) {
