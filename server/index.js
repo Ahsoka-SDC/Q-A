@@ -4,10 +4,6 @@ const { getQuestions, addQuestion, helpfulQuestion, reportQuestion, getAnswers, 
 
 app.use(express.json());
 
-app.get('/loaderio-bf317b95c03e9a70c262d375682be9cb', (req, res) => {
-  res.status(200).send('loaderio-bf317b95c03e9a70c262d375682be9cb');
-})
-
 //get questions
 app.get('/qa/questions', (req, res) => {
   getQuestions(req.query.product_id, req.query.count).then(data => {
