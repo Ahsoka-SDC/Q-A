@@ -1,11 +1,11 @@
 require('dotenv').config()
 const { Pool, Client } = require('pg')
 const pool = new Pool({
-  host: process.env.HOST,
-  port: process.env.PORT,
+  host: 'ec2-52-35-215-145.us-west-2.compute.amazonaws.com',
+  port: '5432',
   user: 'ubuntu',
-  password: process.env.PW,
-  database: process.env.DATABASE
+  password: 'password',
+  database: 'banzubie'
 });
 
 pool.connect(err => {
